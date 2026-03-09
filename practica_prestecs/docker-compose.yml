@@ -1,0 +1,70 @@
+# Docker Compose per al Sistema de Gestió de Préstecs
+# Arxquitectura: PHP (Apache) + MariaDB (Base de dades) + PHPMyAdmin (Gestor web)
+
+version: '3.8'
+
+services:
+  # 1. Servei de Base de Dades (MariaDB)
+  # Emmagatzema els registres de préstecs i s'inicialitza automàticament amb init.sql
+  c_bd_prestecs:
+    image: mariadb:10.6
+    container_name: c_bd_prestecs
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_prestecs
+      MYSQL_USER: user_prestecs
+      MYSQL_PASSWORD: pwd_prestecs
+    # Muntatge del script d'inicialització
+    # MariaDB executa automàticament els scripts en aquest directori
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - bd_prestecs_data:/var/lib/mysql
+    restart: always
+    networks:
+      - xarxa_prestecs
+
+  # 2. Servei de PHPMyAdmin
+  # Interfície web per administrar la base de dades
+  c_phpmyadmin_prestecs:
+    image: phpmyadmin:latest
+    container_name: c_phpmyadmin_prestecs
+    ports:
+      - "8083:80"  # Accés: http://localhost:8083
+    environment:
+      PMA_HOST: c_bd_prestecs
+      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      - c_bd_prestecs
+    restart: always
+    networks:
+      - xarxa_prestecs
+
+  # 3. Servei de Web (PHP + Apache)
+  # Servidor web que executa index.php i es connecta a la base de dades
+  c_web_prestecs:
+    build: .  # Construeix la imatge a partir del Dockerfile del directori actual!! (Fa servervir el Dockerfile)
+    container_name: c_web_prestecs
+    ports:
+      - "8084:80"  # Accés: http://localhost:8084
+    environment:
+      # Variables d'entorn per a la connexió a la BD
+      DB_HOST: c_bd_prestecs
+      MYSQL_USER: user_prestecs
+      MYSQL_PASSWORD: pwd_prestecs
+      MYSQL_DATABASE: db_prestecs
+    volumes:
+      - ./:/var/www/html  # Muntatge del codi font per desenvolupament
+    depends_on:
+      - c_bd_prestecs
+    restart: always
+    networks:
+      - xarxa_prestecs
+
+# Definició de xarxa personalitzada permetent la comunicació entre contenidors
+networks:
+  xarxa_prestecs:
+    driver: bridge
+
+# Definició de volum per persistir les dades de la base de dades
+volumes:
+  bd_prestecs_data:
