@@ -17,7 +17,7 @@ services:
     # Muntatge del script d'inicialització
     # MariaDB executa automàticament els scripts en aquest directori
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
       - bd_prestecs_data:/var/lib/mysql
     restart: always
     networks:
@@ -53,7 +53,7 @@ services:
       MYSQL_PASSWORD: pwd_prestecs
       MYSQL_DATABASE: db_prestecs
     volumes:
-      - ./:/var/www/html  # Muntatge del codi font per desenvolupament
+      - ./html:/var/www/html  # Muntatge del codi font per desenvolupament
     depends_on:
       - c_bd_prestecs
     restart: always

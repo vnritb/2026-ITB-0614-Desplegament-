@@ -10,7 +10,7 @@ RUN docker-php-ext-install mysqli
 RUN a2enmod rewrite
 
 # Copiar els fitxers de la web al directori de Apache
-COPY . /var/www/html/
+# COPY html/ /var/www/html/
 
 # Establir els permisos correctes
 RUN chown -R www-data:www-data /var/www/html

@@ -33,7 +33,7 @@ if ($conn->connect_error) {
 <body>
 
 <div class="container">
-    <img src="assets/logo.png" alt="Logo Institut" class="logo" width="120">
+    <img src="logo.jpg" alt="Logo Institut" class="logo" width="120">
     
     <h1>💻 Inventari de Préstecs</h1>
     
